@@ -87,7 +87,7 @@ const Ui = new Lang.Class({
 	listbox1.buttons.unshift(button);
 	this._clear();
 	
-	button.get_child().set_xalign(0);
+	button.get_child().set_halign(Gtk.Align.START);
 	button.connect('clicked', Lang.bind(this, function(button, file) {
 	    let label5 = this.main.get_object('label5');
 	    let label6 = this.main.get_object('label6');
