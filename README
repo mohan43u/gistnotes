@@ -1,0 +1,15 @@
+GistNotes
+=========
+
+A simple tool which stores text files in gist.github.com. Can be used for,
+
+1. writing notes
+2. writing snippets
+3. as a personal pastebin
+
+Development
+===========
+
+Code is available at
+
+https://www.github.com/mohan43u/gistnotes
