@@ -31,10 +31,11 @@ function init() {
 			 track_hover: true});
     let gfile = Gio.File.new_for_path(Me.imports.searchPath + '/icons/gistnotes.png');
     let gicon = Gio.FileIcon.new(gfile);
-    gicon.load(gfile.query_info("standard::size",
-				Gio.FileQueryInfoFlags.NONE,
-				null).get_attribute_uint64("standard::size"),
-	       null);
+    gicon.load_async(gfile.query_info("standard::size",
+				      Gio.FileQueryInfoFlags.NONE,
+				      null).get_attribute_uint64("standard::size"),
+		     null,
+		     function(gicon, result) { gicon.load_finish(result); });
     let icon = new St.Icon({gicon: gicon,
 			    style_class: 'system-status-icon'});
     button.set_child(icon);
