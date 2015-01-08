@@ -53,7 +53,7 @@ const Github = new Lang.Class({
 	this.client_id = props.client_id || 'cc61935b01f65cf262a5';
 	this.client_secret = props.client_secret || '40190a8926b434bd43f630b03113805f2a47d196';
 	this.redirect_uri = props.redirect_uri || 'https://www.github.com/mohan43u/gistnotes';
-	this.scope = props.scope || 'user,gist';
+	this.scope = props.scope || 'gist';
 	this.soup = props.soup || new SimpleSoup.SimpleSoup({"user_agent": this.app});
 	this.store = props.store || new SecretStore.SecretStore();
     },
