@@ -49,7 +49,7 @@ const Github = new Lang.Class({
     },
     _init: function(props) {
 	props = props || {};
-	this.app = props.app || 'gistnotes-github-provider';
+	this.app = props.app || GLib.path_get_basename(System.programInvocationName);
 	this.client_id = props.client_id || 'cc61935b01f65cf262a5';
 	this.client_secret = props.client_secret || '40190a8926b434bd43f630b03113805f2a47d196';
 	this.redirect_uri = props.redirect_uri || 'https://www.github.com/mohan43u/gistnotes';
