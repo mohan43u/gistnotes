@@ -31,6 +31,7 @@ const GistNotes = new Lang.Class({
 	this.ui = props.ui || new Ui.Ui();
 	this.github.connect('authorize-error', Lang.bind(this.ui, this.ui.quit));
 	this.github.connect('init-done', Lang.bind(this, this._init_done_cb));
+	this.github.soup.connect('progress', Lang.bind(this, this._progress_cb));
 	this.github.init();
     },
     run: function(argv) {
@@ -39,7 +40,7 @@ const GistNotes = new Lang.Class({
     _get_content: function(url, callback) {
 	this.github.soup.call('GET',
 			      url,
-			      null,
+			      this.github.defaultrequest,
 			      null,
 			      Lang.bind(this, function(response, callback) {
 				  if(response.statuscode == 200) {
@@ -61,7 +62,7 @@ const GistNotes = new Lang.Class({
     _more_cb: function(link) {
 	this.github.soup.call('GET',
 			      link,
-			      null,
+			      this.github.defaultrequest,
 			      null,
 			      Lang.bind(this, this._handle_gists_list));
     },
@@ -136,6 +137,9 @@ const GistNotes = new Lang.Class({
 				   Lang.bind(this, this._handle_gists_list));
 	    })
 	});
+    },
+    _progress_cb: function(soup, fraction) {
+	this.ui.progress_handler(fraction);
     }
 });
 Signals.addSignalMethods(GistNotes.prototype);

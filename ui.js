@@ -6,6 +6,7 @@ const GLib = imports.gi.GLib;
 const Gtk = imports.gi.Gtk;
 const Gio = imports.gi.Gio;
 const GtkSource = imports.gi.GtkSource;
+const GObject = imports.gi.GObject;
 const Lang = imports.lang;
 const Signals = imports.signals;
 const System = imports.system;
@@ -63,6 +64,7 @@ const Ui = new Lang.Class({
     },
     _clear: function() {
 	this.main.get_object('grid2').hide();
+	this.main.get_object('progressbar1').hide();
 	this.main.get_object('togglebutton1').set_active(false);
 	this.main.get_object('entry1').set_text('');
 	this.main.get_object('entry2').set_text('');
@@ -155,7 +157,8 @@ const Ui = new Lang.Class({
     enable_more: function(callback) {
 	let button1 = this.main.get_object('button1');
 	if(!button1.sensitive) button1.sensitive = true;
-	button1.connect('clicked', Lang.bind(this, function(button1, callback) {
+	if(button1.callback_id) GObject.signal_handler_disconnect(button1, button1.callback_id);
+	button1.callback_id = button1.connect('clicked', Lang.bind(this, function(button1, callback) {
 	    button1.sensitive = false;
 	    callback();
 	}, callback));
@@ -221,5 +224,11 @@ const Ui = new Lang.Class({
 		callbacks[text]();
 	    }
 	}, callbacks));
+    },
+    progress_handler: function(fraction) {
+	let progressbar1 = this.main.get_object('progressbar1');
+	progressbar1.show();
+	progressbar1.set_fraction(fraction);
+	if(fraction >= 1) progressbar1.hide();
     }
 });

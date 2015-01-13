@@ -3,6 +3,7 @@
  */
 
 const Lang = imports.lang;
+const Signals = imports.signals;
 const Format = imports.format;
 String.prototype.format = Format.format;
 
@@ -17,6 +18,9 @@ SimpleSoupError.prototype = new Error();
 
 const SimpleSoup = new Lang.Class({
     Name: "SimpleSoup",
+    Signals: {
+	'progress': {}
+    },
     _init: function(props) {
 	this.user_agent = props.user_agent || 'simplesoup.js';
 	this.chunk_size = props.chunk_size || 4098;
@@ -28,7 +32,7 @@ const SimpleSoup = new Lang.Class({
 	let souprequest = soup.request_http(method, url);
 	let message = souprequest.get_message();
 	let headers = message['request-headers'];
-	let response = {"chunk_size": this.chunk_size, "headers": {}};
+	let response = {"headers": {}};
 
 	if(this.debug) {
 	    let debuglevel = {"minimal": Soup.LoggerLogLevel.MINIMAL,
@@ -58,21 +62,29 @@ const SimpleSoup = new Lang.Class({
 				    request.body);
 	    }
 	}
+	this.emit('progress', 0.02);
 	if(callback) {
 	    souprequest.send_async(cancellable,
-				   Lang.bind(response, function(soup,
+				   Lang.bind(this, function(soup,
 								asyncresult,
 								cancellable,
-								callback) {
+								callback,
+								response) {
 				       let stream = soup.send_finish(asyncresult);
 				       stream.result = '';
+				       stream.resultsize = 0;
 				       stream.chunk_size = this.chunk_size;
 				       stream.callback = Lang.bind(this, function(stream,
 										  asyncresult,
 										  cancellable,
-										  callback) {
+										  callback,
+										  response) {
 					   let result = stream.read_bytes_finish(asyncresult);
-					   if(result.get_size() > 0) {
+					   let size = result.get_size();
+					   if(size > 0) {
+					       let contentlength = parseFloat(response.headers['Content-Length']);
+					       stream.resultsize += size;
+					       this.emit('progress', stream.resultsize/contentlength);
 					       stream.result += result.get_data().toString();
 					       stream.read_bytes_async(stream.chunk_size,
 								       GLib.PRIORITY_DEFAULT,
@@ -80,28 +92,36 @@ const SimpleSoup = new Lang.Class({
 								       stream.callback);
 					   }
 					   else {
-					       this.body = stream.result;
-					       callback(this);
+					       response.body = stream.result;
+					       this.emit('progress', 1);
+					       callback(response);
 					   }
-				       }, cancellable, callback);
+				       }, cancellable, callback, response);
 				       stream.read_bytes_async(stream.chunk_size,
 							       GLib.PRIORITY_DEFAULT,
 							       cancellable,
 							       stream.callback);
-				   }, cancellable, callback));
+				   }, cancellable, callback, response));
 	    return true;
 	}
 	else {
 	    let stream = souprequest.send(cancellable);
 	    stream.result = '';
+	    stream.resultsize = 0;
 	    stream.chunk_size = response.chunk_size;
 	    while(true) {
 		let result = stream.read_bytes(stream.chunk_size, cancellable);
-		if(result.get_size() <= 0) break;
+		let size = result.get_size();
+		if(size <= 0) break;
+		let contentlength = parseFloat(response.headers['Content-Length']);
+		stream.resultsize += size;
+		this.emit('progress', stream.resultsize/contentlength);
 		stream.result += result.get_data().toString();
 	    }
 	    response.body = stream.result;
+	    this.emit('progress', 1);
 	    return response;
 	}
     }
 });
+Signals.addSignalMethods(SimpleSoup.prototype);

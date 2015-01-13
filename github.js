@@ -13,7 +13,6 @@ String.prototype.format = Format.format;
 
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
-const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
 const Gdk = imports.gi.Gdk;
 const Soup = imports.gi.Soup;
@@ -45,7 +44,7 @@ const Github = new Lang.Class({
     Signals: {
 	'authorize-error': {},
 	'authorize-done': {},
-	'init-done': {},
+	'init-done': {}
     },
     _init: function(props) {
 	props = props || {};
@@ -56,6 +55,8 @@ const Github = new Lang.Class({
 	this.scope = props.scope || 'gist';
 	this.soup = props.soup || new SimpleSoup.SimpleSoup({"user_agent": this.app});
 	this.store = props.store || new SecretStore.SecretStore();
+	this.defaultrequest = {'headers': {'Accept': 'application/json',
+					   'Accept-Encoding': ''}};
     },
     _retrive_access_token: function() {
 	let body = null;
@@ -65,9 +66,9 @@ const Github = new Lang.Class({
 	body += '&client_secret=' + this.client_secret;
 	body += '&code=' + this.code;
 	body += '&redirect_uri=' + escape(this.redirect_uri);
-	request = {'headers': {'Content-Type': 'application/x-www-form-urlencoded',
-			       'Accept': 'application/json'},
-		   'body': body};
+	request = this.defaultrequest;
+	request.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+	request.body = body;
 	this.soup.call('POST',
 		       API['access_token'],
 		       request,
@@ -144,7 +145,7 @@ const Github = new Lang.Class({
     _me: function() {
 	this.soup.call('GET',
 		       this._url(API['me']),
-		       null,
+		       this.defaultrequest,
 		       null,
 		       Lang.bind(this, function(response) {
 			   if(response.statuscode == 200) {
@@ -196,7 +197,7 @@ const Github = new Lang.Class({
 			 callback) {
 	this.soup.call('GET',
 		       this._url(API['gists'][type].format(this.user_id), pageparams),
-		       null,
+		       this.defaultrequest,
 		       cancellable,
 		       callback);
     },
@@ -205,7 +206,7 @@ const Github = new Lang.Class({
 		       callback) {
 	this.soup.call('GET',
 		       this._url(API['gists']['id'].format(id)),
-		       null,
+		       this.defaultrequest,
 		       cancellable,
 		       callback);
     },
@@ -229,7 +230,8 @@ const Github = new Lang.Class({
 								       callback) {
 		let content = giofile.load_contents_finish(asyncresult)[1];
 		post["files"][giofile.get_basename()] = {"content": content.toString()};
-		let request = {'headers': {'Content-Type': 'application/json'}, 'body': JSON.stringify(post)};
+		let request = this.defaultrequest;
+		request.body = JSON.stringify(post);
 		return this.soup.call('POST',
 				      this._url(API['gists']['create']),
 				      request,
@@ -239,7 +241,8 @@ const Github = new Lang.Class({
 	}
 	else {
 	    post["files"][file.name] = {"content": file.content};
-	    let request = {'headers': {'Content-Type': 'application/json'}, 'body': JSON.stringify(post)};
+	    let request = this.defaultrequest;
+	    request.body = JSON.stringify(post);
 	    let url = this._url(API['gists']['create']);
 	    this.soup.call('POST',
 			   url,
@@ -253,7 +256,7 @@ const Github = new Lang.Class({
 			   callback) {
 	this.soup.call('DELETE',
 		       this._url(API['gists']['id'].format(id)),
-		       null,
+		       this.defaultrequest,
 		       cancellable,
 		       callback);
     }
