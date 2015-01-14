@@ -26,6 +26,11 @@ const SimpleSoup = new Lang.Class({
 	this.chunk_size = props.chunk_size || 4098;
 	this.debug = props.debug || GLib.getenv("SOUP_DEBUG");
     },
+    _emit_progress: function(part, whole) {
+	if(whole) {
+	    this.emit('progress', part/(typeof(whole) == "string" ? parseFloat(whole) : whole));
+	}
+    },
     call: function(method, url, request, cancellable, callback) {
 	cancellable = cancellable || null;
 	let soup = new Soup.Session();
@@ -62,14 +67,14 @@ const SimpleSoup = new Lang.Class({
 				    request.body);
 	    }
 	}
-	this.emit('progress', 0.02);
+	this._emit_progress(0.02, 1);
 	if(callback) {
 	    souprequest.send_async(cancellable,
 				   Lang.bind(this, function(soup,
-								asyncresult,
-								cancellable,
-								callback,
-								response) {
+							    asyncresult,
+							    cancellable,
+							    callback,
+							    response) {
 				       let stream = soup.send_finish(asyncresult);
 				       stream.result = '';
 				       stream.resultsize = 0;
@@ -82,9 +87,8 @@ const SimpleSoup = new Lang.Class({
 					   let result = stream.read_bytes_finish(asyncresult);
 					   let size = result.get_size();
 					   if(size > 0) {
-					       let contentlength = parseFloat(response.headers['Content-Length']);
 					       stream.resultsize += size;
-					       this.emit('progress', stream.resultsize/contentlength);
+					       this._emit_progress(stream.resultsize, response.headers['Content-Length']);
 					       stream.result += result.get_data().toString();
 					       stream.read_bytes_async(stream.chunk_size,
 								       GLib.PRIORITY_DEFAULT,
@@ -93,7 +97,7 @@ const SimpleSoup = new Lang.Class({
 					   }
 					   else {
 					       response.body = stream.result;
-					       this.emit('progress', 1);
+					       this._emit_progress(1, 1);
 					       callback(response);
 					   }
 				       }, cancellable, callback, response);
@@ -113,13 +117,12 @@ const SimpleSoup = new Lang.Class({
 		let result = stream.read_bytes(stream.chunk_size, cancellable);
 		let size = result.get_size();
 		if(size <= 0) break;
-		let contentlength = parseFloat(response.headers['Content-Length']);
 		stream.resultsize += size;
-		this.emit('progress', stream.resultsize/contentlength);
+		this._emit_progress(stream.resultsize, response.headers['Content-Length']);
 		stream.result += result.get_data().toString();
 	    }
 	    response.body = stream.result;
-	    this.emit('progress', 1);
+	    this._emit_progress(1, 1);
 	    return response;
 	}
     }

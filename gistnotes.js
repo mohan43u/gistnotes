@@ -113,28 +113,28 @@ const GistNotes = new Lang.Class({
 	
 	this.ui.add_list_handlers({
 	    'user-gists': Lang.bind(this, function() {
-	    this.github.gists_list('user-gists',
-				   null,
-				   null,
-				   Lang.bind(this, this._handle_gists_list));
+		this.github.gists_list('user-gists',
+				       null,
+				       null,
+				       Lang.bind(this, this._handle_gists_list));
 	    }),
 	    'user-public-gists': Lang.bind(this, function() {
-	    this.github.gists_list('user-public-gists',
-				   null,
-				   null,
-				   Lang.bind(this, this._handle_gists_list));
+		this.github.gists_list('user-public-gists',
+				       null,
+				       null,
+				       Lang.bind(this, this._handle_gists_list));
 	    }),
 	    'user-starred-gists': Lang.bind(this, function() {
-	    this.github.gists_list('user-starred-gists',
-				   null,
-				   null,
-				   Lang.bind(this, this._handle_gists_list));
+		this.github.gists_list('user-starred-gists',
+				       null,
+				       null,
+				       Lang.bind(this, this._handle_gists_list));
 	    }),
 	    'public-gists': Lang.bind(this, function() {
-	    this.github.gists_list('public-gists',
-				   null,
-				   null,
-				   Lang.bind(this, this._handle_gists_list));
+		this.github.gists_list('public-gists',
+				       null,
+				       null,
+				       Lang.bind(this, this._handle_gists_list));
 	    })
 	});
     },
