@@ -46,6 +46,9 @@ const GistNotes = new Lang.Class({
 				  if(response.statuscode == 200) {
 				      callback(response.body);
 				  }
+				  else {
+				      this._handle_error(response);
+				  }
 			      }, callback));
     },
     _handle_gist: function(gist, content) {
@@ -77,6 +80,9 @@ const GistNotes = new Lang.Class({
 		this._handle_gist(gists[index]);
 	    }
 	}
+	else {
+	    this._handle_error(response);
+	}
     },
     _handle_gists_delete: function(file) {
 	if(file && file.gist.owner && file.gist.owner.login == this.github.user_id) {
@@ -87,6 +93,9 @@ const GistNotes = new Lang.Class({
 					     for(let fileobject of file.gist.fileobjects) {
 						 this.ui.remove_file(fileobject);
 					     }
+					 }
+					 else {
+					     this._handle_error(response);
 					 }
 				     }, file));
 	}
@@ -107,6 +116,9 @@ const GistNotes = new Lang.Class({
 				     Lang.bind(this, function(response, content) {
 					 if(response.statuscode == 201) {
 					     this._handle_gist(JSON.parse(response.body), content);
+					 }
+					 else {
+					     this._handle_error(response);
 					 }
 				     }, filecontent));
 	}));
@@ -140,6 +152,9 @@ const GistNotes = new Lang.Class({
     },
     _progress_cb: function(soup, fraction) {
 	this.ui.progress_handler(fraction);
+    },
+    _handle_error: function(response) {
+	this.ui.show_message('[' + response.statuscode + '] ' + response.body);
     }
 });
 Signals.addSignalMethods(GistNotes.prototype);

@@ -91,6 +91,9 @@ const Github = new Lang.Class({
 						    }));
 			       }
 			   }
+			   else {
+			       this.emit('authorize-error');
+			   }
 		       }));
     },
     authorize: function() {

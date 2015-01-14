@@ -39,6 +39,7 @@ const Ui = new Lang.Class({
 	}
 	this.window.show_all();
 	this._add_details_handler();
+	this._add_show_message_button_handler();
 	this._clear();
     },
     _lang_manager_init: function() {
@@ -64,6 +65,7 @@ const Ui = new Lang.Class({
     },
     _clear: function() {
 	this.main.get_object('grid2').hide();
+	this.main.get_object('box4').hide();
 	this.main.get_object('progressbar1').hide();
 	this.main.get_object('togglebutton1').set_active(false);
 	this.main.get_object('entry1').set_text('');
@@ -230,5 +232,18 @@ const Ui = new Lang.Class({
 	progressbar1.show();
 	progressbar1.set_fraction(fraction);
 	if(fraction >= 1) progressbar1.hide();
+    },
+    _add_show_message_button_handler: function() {
+	let box4 = this.main.get_object('box4');
+	box4.hide();
+	this.main.get_object('button6').connect('clicked', Lang.bind(box4, function(button) {
+	    this.hide();
+	}));
+    },
+    show_message: function(message) {
+	let box4 = this.main.get_object('box4');
+	let label16 = this.main.get_object('label16');
+	box4.show();
+	label16.set_text(message);
     }
 });
