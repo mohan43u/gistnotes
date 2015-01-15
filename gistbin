@@ -1,0 +1,77 @@
+#!/usr/bin/env gjs
+
+const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
+const System = imports.system;
+imports.searchPath.unshift(GLib.path_get_dirname(System.programInvocationName));
+const Github = imports.github;
+const Mainloop = imports.mainloop;
+let github = null;
+
+if(ARGV[0] == "--help" || ARGV[0] == "-h") {
+    let app = GLib.path_get_basename(System.programInvocationName);
+    print("[usage] " + app + " file ...");
+    print("example: " + app + " file1.ext file2.ext (or) cat stdin.ext | " + app);
+    System.exit(1);
+}
+
+function handle_response(response) {
+    if(response.statuscode == 201) {
+	print(JSON.parse(response.body).html_url);
+    }
+    else {
+	printerr(response.body);
+    }
+    Mainloop.quit('default');
+}
+
+function upload() {
+    Mainloop.quit('default');
+    if(ARGV && ARGV.length > 0) {
+	for(let filename of ARGV) {
+	    github.gists_create({"name": GLib.path_get_basename(filename),
+				 "path": filename},
+				null,
+				false,
+				null,
+				handle_response);
+	    Mainloop.run('default');
+	}
+    }
+    else {
+	let stdin = new Gio.UnixInputStream({fd: 0, close_fd: true});
+	stdin.result = [];
+	stdin.callback = function(stdin, asyncresult) {
+	    let result = stdin.read_bytes_finish(asyncresult);
+	    if(result.get_size() > 0) {
+		stdin.result = stdin.result.concat(result.get_data());
+		stdin.read_bytes_async(4098,
+				       GLib.PRIORITY_DEFAULT,
+				       null,
+				       stdin.callback);
+	    }
+	    else {
+		let checksum = GLib.Checksum.new(GLib.ChecksumType.SHA1);
+		let filename = "blob " + stdin.result.length + stdin.result;
+		checksum.update(filename, filename.length);
+		github.gists_create({"name": checksum.get_string().substr(0, 20),
+				     "content": stdin.result.toString()},
+				    null,
+				    false,
+				    null,
+				    handle_response);
+	    }
+	}
+	stdin.read_bytes_async(4098,
+			       GLib.PRIORITY_DEFAULT,
+			       null,
+			       stdin.callback);
+	Mainloop.run('default');
+    }
+}
+
+github = new Github.Github({"app": "gistnotes.js"});
+github.connect('init-done', upload);
+github.connect('authorize-error', function() { Mainloop.quit('default'); });
+github.init();
+Mainloop.run('default');

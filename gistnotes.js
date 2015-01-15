@@ -6,7 +6,6 @@
 
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
-const Mainloop = imports.mainloop;
 const Signals = imports.signals;
 const System = imports.system;
 const Format = imports.format;

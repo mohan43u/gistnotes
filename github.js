@@ -54,7 +54,7 @@ const Github = new Lang.Class({
 	this.redirect_uri = props.redirect_uri || 'https://www.github.com/mohan43u/gistnotes';
 	this.scope = props.scope || 'gist';
 	this.soup = props.soup || new SimpleSoup.SimpleSoup({"user_agent": this.app});
-	this.store = props.store || new SecretStore.SecretStore();
+	this.store = props.store || new SecretStore.SecretStore({"app": this.app});
 	this.defaultrequest = {'headers': {'Accept': 'application/json',
 					   'Accept-Encoding': ''}};
     },
