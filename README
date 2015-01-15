@@ -13,8 +13,7 @@ GistBin:
 A simple commandline tool which uses GistNotes modules to upload files to gist.github.com
 
   howto use:
-  	set below alias (may be in your .bashrc) to make gistbin available. gistbin needs to be executed with full path
-	in order to load other javascript modules, so don't export gistnotes extension directory into PATH variable.
+  	set below alias (may be in your .bashrc) to make gistbin available. gistbin needs to be executed with full path	in order to load other javascript modules, so don't export gistnotes extension directory into PATH variable.
 
 	alias gistbin="${HOME}/.local/share/gnome-shell/extensions/gistnotes@mohan43u.gmail.com/gistbin"
 
