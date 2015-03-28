@@ -1,5 +1,5 @@
 {
-    "shell-version": ["3.10", "3.12", "3.14", "3.15.3"],
+    "shell-version": ["3.10", "3.12", "3.14", "3.16"],
     "description": "notes app which directly store data in github",
     "name": "gistnotes",
     "uuid": "gistnotes@mohan43u.gmail.com",
