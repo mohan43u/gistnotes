@@ -17,7 +17,13 @@ A simple commandline tool which uses GistNotes modules to upload files to gist.g
 
 	alias gistbin="${HOME}/.local/share/gnome-shell/extensions/gistnotes@mohan43u.gmail.com/gistbin"
 
-Development
+Download:
+=========
+
+Gnome 3.16: https://extensions.gnome.org/review/download/5024.shell-extension.zip
+Gnome 3.14: https://extensions.gnome.org/review/download/4642.shell-extension.zip
+
+Development:
 ===========
 
 Code is available at
