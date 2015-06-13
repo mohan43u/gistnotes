@@ -31,7 +31,7 @@ function upload() {
 	for(let filename of ARGV) {
 	    github.gists_create({"name": GLib.path_get_basename(filename),
 				 "path": filename},
-				null,
+				'',
 				false,
 				null,
 				handle_response);
@@ -54,9 +54,10 @@ function upload() {
 		let checksum = GLib.Checksum.new(GLib.ChecksumType.SHA1);
 		let filename = "blob " + stdin.result.length + stdin.result;
 		checksum.update(filename, filename.length);
+		let name = checksum.get_string().substr(0,20);
 		github.gists_create({"name": checksum.get_string().substr(0, 20),
 				     "content": stdin.result.toString()},
-				    null,
+				    '',
 				    false,
 				    null,
 				    handle_response);
