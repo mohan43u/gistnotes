@@ -51,7 +51,7 @@ const Github = new Lang.Class({
 	this.app = props.app || GLib.path_get_basename(System.programInvocationName);
 	this.client_id = props.client_id || 'cc61935b01f65cf262a5';
 	this.client_secret = props.client_secret || '40190a8926b434bd43f630b03113805f2a47d196';
-	this.redirect_uri = props.redirect_uri || 'https://www.github.com/mohan43u/gistnotes';
+	this.redirect_uri = props.redirect_uri || 'https://github.com/mohan43u/gistnotes';
 	this.scope = props.scope || 'gist';
 	this.soup = props.soup || new SimpleSoup.SimpleSoup({"user_agent": this.app});
 	this.store = props.store || new SecretStore.SecretStore({"app": this.app});
@@ -118,17 +118,16 @@ const Github = new Lang.Class({
 	window.set_position(Gtk.WindowPosition.CENTER);
 	settings['user-agent'] = WEBKIT_USER_AGENT;
 	webkit.set_settings(settings);
-	webkit.connect('resource-request-starting', Lang.bind(this, function(webkit,
-									     frame,
-									     resource,
-									     request,
-									     response,
-									     window) {
+	webkit.connect('resource-response-received', Lang.bind(this, function(webkit,
+									      frame,
+									      resource,
+									      response,
+									      window) {
 	    if(response) {
 		let message = response.get_message();
-		let location = message['response-headers'].get('Location');
+		let location = response.get_uri();
 		
-		if(message['status-code'] == 302
+		if(message['status-code'] == 200
 		   && location.search(this.redirect_uri) >= 0) {
 		    this.code = (/code=([^&]*)/g).exec(location)[1];
 		    window.close();
