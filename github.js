@@ -16,7 +16,7 @@ const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
 const Gdk = imports.gi.Gdk;
 const Soup = imports.gi.Soup;
-const WebKit = imports.gi.WebKit;
+const WebKit = imports.gi.WebKit2;
 
 const WEBKIT_USER_AGENT = 'Mozilla/5.0 (GNOME; not Android) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile';
 const API = {
@@ -103,7 +103,7 @@ const Github = new Lang.Class({
 	let screen = Gdk.Screen.get_default();
 	let size = new Gdk.Geometry();
 	let webkit = new WebKit.WebView();
-	let settings = new WebKit.WebSettings();
+	let settings = new WebKit.Settings();
 	let url = null;
 
 	window.set_title(GLib.path_get_basename(System.programInvocationName));
@@ -118,20 +118,18 @@ const Github = new Lang.Class({
 	window.set_position(Gtk.WindowPosition.CENTER);
 	settings['user-agent'] = WEBKIT_USER_AGENT;
 	webkit.set_settings(settings);
-	webkit.connect('resource-response-received', Lang.bind(this, function(webkit,
-									      frame,
-									      resource,
-									      response,
-									      window) {
-	    if(response) {
-		let message = response.get_message();
-		let location = response.get_uri();
-		
-		if(message['status-code'] == 200
-		   && location.search(this.redirect_uri) >= 0) {
+	webkit.connect('resource-load-started', Lang.bind(this, function(webkit,
+									 resource,
+									 request,
+									 window) {
+	    if(request.get_uri().search(this.redirect_uri) >= 0) {
+		let location = request.get_uri();
+		if(location.search(this.redirect_uri) >= 0) {
 		    this.code = (/code=([^&]*)/g).exec(location)[1];
-		    window.close();
-		    this._retrive_access_token();
+		    if(this.code) {
+			window.close();
+			this._retrive_access_token();
+		    }
 		}
 	    }
 	}, window));
@@ -141,7 +139,7 @@ const Github = new Lang.Class({
 	url += '&scope=' + escape(this.scope);
 	webkit.load_uri(url);
 	scroll.add(webkit);
-	window.add(scroll, true, true, 10);
+	window.add(scroll);
 	window.show_all();
     },
     _me: function() {
