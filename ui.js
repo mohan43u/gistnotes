@@ -14,7 +14,7 @@ const Format = imports.format;
 String.prototype.format = Format.format;
 imports.searchPath.unshift(GLib.path_get_dirname(System.programInvocationName));
 
-const Ui = new Lang.Class({
+var Ui = new Lang.Class({
     Name: "Ui",
     Extends: Gtk.Application,
     _init: function(props) {

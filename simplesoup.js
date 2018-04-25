@@ -16,7 +16,7 @@ const SimpleSoupError = function(errormsg) {
 }
 SimpleSoupError.prototype = new Error();
 
-const SimpleSoup = new Lang.Class({
+var SimpleSoup = new Lang.Class({
     Name: "SimpleSoup",
     Signals: {
 	'progress': {}

@@ -39,7 +39,7 @@ const GithubError = function(errormsg) {
 }
 GithubError.prototype = new Error();
 
-const Github = new Lang.Class({
+var Github = new Lang.Class({
     Name: "GitHub",
     Signals: {
 	'authorize-error': {},

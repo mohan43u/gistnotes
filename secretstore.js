@@ -15,7 +15,7 @@ const SecretStoreError = function(errormsg) {
 }
 SecretStoreError.prototype = new Error();
 
-const SecretStore = new Lang.Class({
+var SecretStore = new Lang.Class({
     Name: "SecretStore",
     _init: function(props) {
 	props = props || {};

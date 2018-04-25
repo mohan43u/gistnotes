@@ -19,7 +19,7 @@ const GistNotesError = function(errormsg) {
 }
 GistNotesError.prototype = new Error();
 
-const GistNotes = new Lang.Class({
+var GistNotes = new Lang.Class({
     Name: 'GistNotes',
     Signals: {
 	'init-done': {}
